@@ -1,0 +1,25 @@
+[project]
+name = "voiceflip"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Guandaline",email = "vhguandaline@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi (>=0.135.3,<0.136.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^9.0.3"
+mkdocs = "^1.6.1"
+ruff = "^0.15.9"
+mypy = "^1.20.0"
+mkdocs-material = "^9.7.6"
+

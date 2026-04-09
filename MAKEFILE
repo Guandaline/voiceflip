@@ -1,0 +1,43 @@
+.PHONY: help install run lint format type-check test eval docs-serve docs-build clean
+
+help:
+	@echo "Available commands:"
+	@echo "  install       Install dependencies"
+	@echo "  run           Run API server"
+	@echo "  lint          Run ruff lint"
+	@echo "  format        Format code with ruff"
+	@echo "  type-check    Run mypy"
+	@echo "  eval          Run evaluation script"
+	@echo "  docs-serve    Serve documentation locally"
+	@echo "  docs-build    Build documentation"
+	@echo "  clean         Clean cache files"
+
+install:
+	poetry install
+
+run:
+	poetry run uvicorn app.main:app --reload
+
+lint:
+	poetry run ruff check .
+
+format:
+	poetry run ruff format .
+
+type-check:
+	poetry run mypy app
+
+eval:
+	poetry run python scripts/eval.py
+
+docs-serve:
+	poetry run mkdocs serve
+
+docs-build:
+	poetry run mkdocs build
+
+clean:
+	find . -type d -name "__pycache__" -exec rm -r {} +
+	find . -type d -name ".pytest_cache" -exec rm -r {} +
+	find . -type d -name ".mypy_cache" -exec rm -r {} +
+	find . -type d -name ".ruff_cache" -exec rm -r {} +

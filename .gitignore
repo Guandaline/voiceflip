@@ -59,6 +59,7 @@ vault.token
 *.hlc
 site/
 .git/
+project.diff
  
 # Binary plans
 *.tfplan

@@ -1,13 +1,32 @@
-# Citation Guardrail Engine
+# VoiceFlip: Citation Guardrail Engine
 
-**A highly deterministic, resilient, and observable post-processing microservice for Retrieval-Augmented Generation (RAG) systems.**
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com)
+[![MkDocs Material](https://img.shields.io/badge/docs-MkDocs-indigo)](https://squidfunk.github.io/mkdocs-material/)
 
-This engine acts as a strict validation layer between the Synthesis LLM and the end-user. Instead of relying on probabilistic language models to inject knowledge base citations—which introduces latency, cost, and hallucination risks—this service enforces deterministic business rules (R1-R5) via code. 
+A deterministic, observable RAG post-processing microservice built for the VoiceFlip Senior AI Engineer technical test. It enforces strict citation rules (R1-R5) using swappable matching strategies and guarantees graceful degradation to prevent LLM hallucinations.
 
-Built with a **Pragmatic Clean Architecture**, the system decouples HTTP routing, domain logic, and infrastructure. It features a pluggable Strategy Pattern for link matching (Keyword, Semantic, and Hybrid) and guarantees high availability through **Graceful Degradation**, automatically falling back to lexical matching if the underlying embedding provider (HuggingFace or OpenAI) experiences an outage.
+👉 **[Watch the Video Walkthrough Here](#)** *(Link to be added)*
 
-### Key Architectural Highlights
-* **Zero Hallucination Guarantee:** Citations are only injected if strict grounding and threshold criteria are met.
-* **Graceful Degradation:** Embedding failures (timeout/500) trigger an automatic fallback to deterministic Keyword Matching without dropping the user request.
-* **Pluggable Strategies:** Easily swappable `Keyword`, `Semantic`, and `Hybrid` matching algorithms.
-* **Observability-First:** Full telemetry on latency, LLM calls, and decision-making reasoning attached to every payload.
+---
+
+## 📋 Deliverables Overview
+
+* **Video Walkthrough:** Linked above.
+* **Extended Golden Set:** Located at `tests/golden_set.json` (10+ cases covering ambiguity, threshold margins, and fallback simulations).
+* **Evaluation Script:** Located at `scripts/eval.py`.
+* **Architecture Decisions:** Fully documented using ADRs. See the `docs/adrs/` directory or run the documentation server.
+* **Design Notes & Trade-offs:** Available in `NOTES.md`.
+
+---
+
+## 🚀 Quick Start
+
+### 1. Installation
+
+Requires Python 3.11+.
+
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
