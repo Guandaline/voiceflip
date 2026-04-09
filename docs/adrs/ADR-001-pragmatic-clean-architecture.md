@@ -21,10 +21,10 @@ We needed to choose an architectural pattern that balances maintainability, test
 
 We will adopt the **Pragmatic Clean Architecture** (Path 3). We will strictly separate concerns into four main layers, while avoiding excessive abstractions (e.g., complex Factory patterns or heavy Dependency Injection containers):
 
-- **API Layer (`voiceclip/api/`):** Handles HTTP delivery, routing, and strict Pydantic schemas (`schemas.py`).
-- **Domain Layer (`voiceclip/domain/`):** Contains pure business logic, R1-R5 rules orchestration (`guardrail_engine.py`), and highly cohesive dataclasses (`models.py`).
-- **Matching Layer (`voiceclip/matching/`):** Encapsulates the algorithmic link selection strategies (Keyword, Semantic, Hybrid) using a lightweight Strategy pattern.
-- **Infrastructure Layer (`voiceclip/infra/`):** Manages external integrations like HuggingFace and OpenAI embeddings using simple environment-based instantiation.
+- **API Layer (`Voiceflip/api/`):** Handles HTTP delivery, routing, and strict Pydantic schemas (`schemas.py`).
+- **Domain Layer (`Voiceflip/domain/`):** Contains pure business logic, R1-R5 rules orchestration (`guardrail_engine.py`), and highly cohesive dataclasses (`models.py`).
+- **Matching Layer (`Voiceflip/matching/`):** Encapsulates the algorithmic link selection strategies (Keyword, Semantic, Hybrid) using a lightweight Strategy pattern.
+- **Infrastructure Layer (`Voiceflip/infra/`):** Manages external integrations like HuggingFace and OpenAI embeddings using simple environment-based instantiation.
 
 ## Consequences
 

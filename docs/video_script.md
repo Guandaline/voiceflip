@@ -3,24 +3,26 @@
 ## 1. Introduction (0:00 - 0:30)
 * **[Camera ON]**
 * "Hi team, I'm Valter. Thank you for the opportunity to present my solution for the Citation Guardrail Engine."
-* "My primary goal with this implementation was to build a highly deterministic, observable, and resilient microservice. I deliberately chose a Pragmatic Clean Architecture to strictly separate the HTTP layer, the business rules (R1 to R5), and the matching strategies."
+* "My primary goal with this implementation was to build a highly deterministic, observable, and resilient microservice based on a Pragmatic Clean Architecture."
 
-## 2. Architecture & Code Walkthrough (0:30 - 2:00)
-* **[Screen Share: IDE showing project structure & guardrail_engine.py]**
-* "As you can see in the `domain/guardrail_engine.py`, the core logic does not rely on complex frameworks. It evaluates the boolean flags sequentially."
-* "For the matching layer, I implemented a Strategy Pattern. The default is a Hybrid strategy."
-* **[Highlight infra/embeddings.py or .env file]**
-* "As requested, the system supports swapping between local HuggingFace models and OpenAI APIs. This is cleanly handled via the `EmbeddingProviderFactory` and environment variables, ensuring the core engine remains completely unaware of the underlying infrastructure."
+## 2. Architecture Decisions (ADRs) First (0:30 - 1:15)
+* **[Screen Share: Show the `NOTES.md` or a split screen with the ADR documentation]**
+* "Before diving into the code, I want to start with the Architecture Decision Records—the ADRs—that guided this project. Building a resilient AI component requires planning for failure from day one."
+* "The cornerstone of this system is **ADR-003: Graceful Degradation**. I designed the engine so that if the embedding provider—whether that's HuggingFace or OpenAI—times out or throws an error, the system does not crash. Instead, it catches the exception, immediately falls back to a deterministic lexical Keyword Strategy, and returns a 200 OK. We preserve the user experience while flagging the degraded state in our observability metrics."
+
+## 3. Code Walkthrough (1:15 - 2:00)
+* **[Screen Share: IDE showing `domain/guardrail_engine.py`]**
+* "Now, let's see how this is implemented in the code. In `domain/guardrail_engine.py`, you can see a strict separation of concerns. The business rules (R1 to R5) are evaluated sequentially, completely decoupled from the HTTP layer."
+* "For the matching layer, I implemented a Strategy Pattern, defaulting to a Hybrid strategy."
+* **[Highlight `infra/embeddings.py` or `.env` file]**
+* "To satisfy the LLM integration requirements, the system supports swapping between local HuggingFace models and OpenAI APIs. This is cleanly handled via the `EmbeddingProviderFactory` and environment variables, ensuring the core engine remains completely unaware of the underlying infrastructure."
 
 ```python
 # Example of the clean factory instantiation
 provider = EmbeddingProviderFactory.create(settings)
 ```
 
-* **[Highlight ADR-003 / Fallback Logic]**
-* "One structural decision I want to highlight is the Graceful Degradation. If the embedding provider (HuggingFace or OpenAI) times out or fails, the system catches the exception and immediately falls back to the deterministic Keyword Strategy. It returns a 200 OK with a specific metric flag rather than dropping a 500 Internal Server Error on the user."
-
-## 3. Live Evaluation Run (2:00 - 3:00)
+## 4. Live Evaluation Run (2:00 - 3:00)
 * **[Screen Share: Terminal]**
 * "Let's run the evaluation against the extended golden set."
 * **[Action: Run the evaluation script]**
@@ -29,9 +31,9 @@ provider = EmbeddingProviderFactory.create(settings)
 python scripts/eval.py
 ```
 
-* "As you can see, we have a 100% pass rate across the 10+ cases. I added edge cases specifically for identical scores handling, empty candidate lists, and simulated embedding timeouts to prove the fallback works."
+* "As you can see, we have a 90% pass rate across the 10+ cases. I specifically added edge cases to test identical score handling, empty candidate lists, and I simulated embedding timeouts to prove that the ADR-003 fallback logic works perfectly in practice."
 
-## 4. Answering the Core Questions (3:00 - End)
+## 5. Answering the Core Questions (3:00 - End)
 * **[Camera ON (Stop Screen Share)]**
 * "Moving to the required questions:"
 
@@ -39,8 +41,8 @@ python scripts/eval.py
 * "Relying on the synthesis LLM for citation injection introduces unacceptable non-determinism. LLMs are probabilistic text generators; they can hallucinate URLs, duplicate citations despite being prompted not to, or subtly alter the link structure. Furthermore, using a large context-window LLM just to perform conditional string concatenation is highly inefficient in terms of cost and latency. By using a post-processing guardrail, we guarantee 100% adherence to business rules, zero hallucinated URLs, and sub-100ms execution times."
 
 ### Q2: What is the most dangerous failure mode of your system and how would you detect it in production?
-* "The most dangerous failure mode is 'Silent Degradation'. If our embedding API fails, the system correctly falls back to lexical keyword matching. However, if this outage persists silently, we might start injecting incorrect citations based purely on keyword overlap (false positives). **This is extremely dangerous because citing completely irrelevant pages directly destroys user trust in the RAG system's accuracy.**"
-* "To detect this in production, I exposed the `reason` field in the response. I would set up a Datadog or Prometheus monitor on the `embedding_failed_fallback_keyword` metric. If this fallback accounts for more than 1% of our traffic over a 5-minute rolling window, it should trigger a P2 alert to the on-call engineer."
+* "The most dangerous failure mode is 'Silent Degradation'. Because of ADR-003, if our embedding API fails, the system correctly falls back to lexical keyword matching. However, if this outage persists silently, we might start injecting incorrect citations based purely on keyword overlap (false positives). **This is extremely dangerous because citing completely irrelevant pages directly destroys user trust in the RAG system's accuracy.**"
+* "To detect this in production, I exposed the `reason` field in the response schema. I would set up a Datadog or Prometheus monitor on the `embedding_failed_fallback_keyword` metric. If this fallback accounts for more than 1% of our traffic over a 5-minute rolling window, it should trigger a P2 alert to the on-call engineer."
 
 ### Q3: If you had one more week, what would you add first and why?
 * **[Speak clearly and deliberately—this part is dense]**
